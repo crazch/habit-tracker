@@ -63,12 +63,6 @@ Once MVP web app is stable:
 ---
 
 ## 📂 Modular Development Approach
-Break features into small, testable modules:
-/modules
-├── pomodoro.js # Pomodoro logic
-├── crud.js # Add/edit/delete tasks
-├── stats.js # Calculate analytics
-├── visualizer.js # Generate charts/heatmap
-├── export.js # Share/export data
-├── MORE...
-Work on each module **independently** → integrate later.
+- Break features into small, testable modules:
+- Work on each module **independently** → integrate later.
+
