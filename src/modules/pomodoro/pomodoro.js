@@ -1,7 +1,3 @@
-const timerBox = document.getElementById("output");
-const infoBox1 = document.getElementById("info1");
-const infoBox2 = document.getElementById("info2");
-
 // Setup function for minutes, sessions and break minutes
 const sessionManager = (totalSession, totalMinutes, breakMinutes) => {
   currentSession = 1;
@@ -25,23 +21,27 @@ const sessionManager = (totalSession, totalMinutes, breakMinutes) => {
   startSession();
 };
 
-// This function calculate time
-const pomodoro = (timeInMinutes, onComplete) => {
-  let totalSeconds = timeInMinutes * 60;
-
-  const timerInterval = setInterval(() => {
+// This function format time to MM:SS
+const formattedTime = (totalSeconds) => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
 
-    // Format minutes and seconds to always have two digits
-    const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
-    const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
+    const formattedMinutes = minutes.toString().padStart(2, "0");
+    const formattedSeconds = seconds.toString().padStart(2, "0");
 
-    timerBox.textContent = `${formattedMinutes}:${formattedSeconds}`;
+    return `${formattedMinutes}:${formattedSeconds}`;
+};
+
+// This function calculate time
+const pomodoro = (timeInMinutes, onComplete, onTick) => {
+  let totalSeconds = timeInMinutes * 60;
+
+  const timerInterval = setInterval(() => {
+    onTick(formattedTime(totalSeconds));
 
     if (totalSeconds <= 0) {
       clearInterval(timerInterval);
-      timerBox.textContent = "00:00";
+      //timerBox.textContent = "00:00";
       onComplete();
     }
     totalSeconds--;
@@ -49,17 +49,11 @@ const pomodoro = (timeInMinutes, onComplete) => {
 };
 
 // This function responsible for short break timer after each session
-const sessionBreak = (breakMinutes, onComplete) => {
+const sessionBreak = (breakMinutes, onComplete, onTick) => {
   let totalSeconds = breakMinutes * 60;
 
   const timerInterval = setInterval(() => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    const formattedMinutes = minutes < 10 ? "0" + minutes : minutes;
-    const formattedSeconds = seconds < 10 ? "0" + seconds : seconds;
-
-    timerBox.textContent = `${formattedMinutes}:${formattedSeconds}`;
+    onTick(formattedTime(totalSeconds));
 
     if (totalSeconds <= 0) {
       clearInterval(timerInterval);
