@@ -1,0 +1,26 @@
+.todo-list {
+  list-style: none;
+  padding: 0;
+  font-family: system-ui, sans-serif;
+}
+
+.todo-list li {
+  margin-bottom: 8px;
+}
+
+.todo-list input[type="checkbox"] {
+  accent-color: #ff5722;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  cursor: pointer;
+}
+
+.todo-list label {
+  cursor: pointer;
+}
+
+.todo-list input[type="checkbox"]:checked + span {
+  text-decoration: line-through;
+  color: #888;
+}
