@@ -7,18 +7,35 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <h1>Todo App</h1>
     <div class="container">
-      <div class="todo-card" id="todo-card">
-        <ul id="todo" class="todo-list">
-          <li>
-            <label>
-              <input type="checkbox" />
-              Task To DO
-            </label>
-          </li>
-          <!--TASK HERE-->
-        </ul>
+      <div class="page-header">
+        <button class="menu-btn">≣</button>
+        <h2 class="page-title">Today</h2>
+        <button class="more-btn">⋯</button>
+      </div>
+      <!-- Header of list (can be Date, Grocery Store etc.) -->
+
+      <!-- Task tab to show tasks according to date-->
+      <div class="tab-container">
+        <div class="tab-header">
+          <p class="list-title">Today</p>
+          <p class="total-task">2^</p>
+        </div>
+        <!-- Total Task || Task Day/Date -->
+        <div class="task-tab">
+          <!-- Task1-->
+          <label>
+            <span> <input type="checkbox" /> Check PC </span>
+            <span>19:30</span>
+          </label>
+        </div>
+
+        <div class="task-tab">
+          <label>
+            <span> <input type="checkbox" /> Check PC </span>
+            <span>18:30</span>
+          </label>
+        </div>
       </div>
     </div>
     <script src="script.js"></script>
