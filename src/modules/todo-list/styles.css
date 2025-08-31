@@ -8,14 +8,6 @@
   margin: 0;
 }
 
-p {
-  margin: 0 0 4px 8px;
-}
-
-.total-task {
-  margin-right: 12px;
-}
-
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -40,6 +32,16 @@ p {
   padding-left: 10px;
 }
 
+.more-btn {
+  font-size: 16px;
+}
+
+/*=================
+|| Tab Container ||
+===================*/
+/*
+- Contain tab container list
+*/
 .tab-container {
   background: #ffffff;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -54,15 +56,88 @@ p {
   padding: 8px;
 }
 
+.page-header h2 {
+  color: black;
+}
+
+.list-title {
+  color: #141414;
+}
+
+.total-task {
+  margin-right: 12px;
+}
+
+/*============
+|| Task Tab ||
+==============*/
+/*
+- Contain every tasks
+*/
 .task-tab {
   border-left: 2px solid red;
   padding: 8px;
   margin: 0 8px;
+  transition: background-color 0.3s;
+  cursor: pointer;
 }
 
-label {
+.task-tab:hover {
+  background-color: #f0f0f0;
+}
+
+.task-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+}
+
+.task-tab label {
+  cursor: pointer;
+}
+
+.task-title {
+  color: #fff;
+}
+
+.task-time {
+  margin-left: 16px;
+  color: #888;
+}
+
+.task-tab input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid red;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+  margin-right: 8px;
+  vertical-align: middle;
+  transition: border-color 0.3s ease;
+}
+
+.task-tab input[type="checkbox"]:checked {
+  background-color: #888;
+  border-color: #888;
+}
+
+.task-tab input[type="checkbox"]:checked::after {
+  content: "✔";
+  position: absolute;
+  left: 0.5px;
+  top: -5.5px;
+  color:#141414;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/*========
+|| Misc ||
+==========*/
+
+.task-tab.completed {
+  color:#888;
 }
