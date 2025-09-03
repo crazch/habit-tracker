@@ -32,6 +32,7 @@ const taskLastEditDate = document.querySelector(".last-edited");
 
 const taskData = JSON.parse(localStorage.getItem("tasks")) || [];
 const currentTask = {};
+let activeTask = null;
 
 const removeSpecialChars = (val) => {
   return val.trim().replace(/[^A-Za-z0-9\-\s]/g, "");
@@ -46,6 +47,7 @@ const addTask = () => {
     title: `${removeSpecialChars(addTaskInput.value)}`,
     date: ``,
     description: "",
+    priority: "",
   };
 
   taskData.push(taskObj);
@@ -56,7 +58,7 @@ const addTask = () => {
 const renderTaskList = () => {
   tabContainer.innerHTML = "";
 
-  taskData.forEach(({ id, title, date, description }) => {
+  taskData.forEach(({ id, title, date, description, priority }) => {
     const taskDiv = document.createElement("div");
     taskDiv.className = "task-tab";
     taskDiv.id = id;
@@ -73,8 +75,19 @@ const renderTaskList = () => {
 
     // Attach event listener here
     taskDiv.addEventListener("click", () => {
-        // SHOW hidden editor
-        // DISPLAY Task Details in Editor
+      activeTask = taskData.find((task) => task.id === id);
+      if (activeTask) {
+        taskEditorContainer.classList.add("open"); // SHOW hidden editor
+        editorTaskTitle.textContent = activeTask.title; // Title
+        textEditor.value = activeTask.description;
+      }
+    });
+
+    textEditor.addEventListener("input", () => {
+      if (activeTask) {
+        activeTask.description = textEditor.value;
+        localStorage.setItem("tasks", JSON.stringify(taskData));
+      }
     });
 
     tabContainer.appendChild(taskDiv);

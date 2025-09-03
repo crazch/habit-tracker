@@ -15,6 +15,7 @@ body {
   flex: 1;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  transition: flex-basis 0.3s ease;
 }
 
 .page-header {
@@ -185,12 +186,15 @@ body {
 ==================*/
 
 .task-editor-container {
-  flex: 2;
-  display: none;
+  flex-basis: 0; /* hidden at start */
+  overflow: hidden;
+  flex-shrink: 0;
   flex-direction: column;
   height: 100vh;
-  overflow: hidden;
+  opacity: 0;
+  transition: flex-basis 0.3s ease, opacity 0.3s ease;
 }
+
 
 .task-editor-toolbox {
   display: flex;
@@ -227,7 +231,8 @@ body {
 }
 
 .task-editor-container.open {
-  display: flex;
+  flex-basis: 40%;
+  opacity: 1;
 }
 
 /*
