@@ -47,7 +47,7 @@ body {
 }
 
 .add-task-input {
-  position: relative; 
+  position: relative;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -176,7 +176,7 @@ body {
   position: absolute;
   left: 0.5px;
   top: -5.5px;
-  color:#141414;
+  color: #141414;
   font-size: 18px;
   font-weight: bold;
 }
@@ -194,7 +194,6 @@ body {
   opacity: 0;
   transition: flex-basis 0.3s ease, opacity 0.3s ease;
 }
-
 
 .task-editor-toolbox {
   display: flex;
@@ -241,39 +240,19 @@ body {
 ===================
 */
 
-.checkbox {
-  border-right: 1.5px solid #cecece;
-  padding-right: 8px;
+.close-editor {
+  margin-top: 8px;
 }
 
-.checkbox input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  border: 2px solid red;
+.close-editor img {
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   cursor: pointer;
-  border-radius: 4px;
-  position: relative;
-  margin-right: 2px;
-  vertical-align: middle;
-  transition: border-color 0.3s ease;
 }
 
-.checkbox input[type="checkbox"]:checked {
-  background-color: #888;
-  border-color: #888;
-}
-
-.checkbox input[type="checkbox"]:checked::after {
-  content: "✔";
-  position: absolute;
-  left: 0.5px;
-  top: -5.5px;
-  color:#141414;
-  font-size: 18px;
-  font-weight: bold;
-}
 
 /* Toolbox buttons */
 .date-editor .date-btn,
@@ -329,12 +308,11 @@ body {
   gap: 6px;
 }
 
-
 /*========
 || Misc ||
 ==========*/
 
 .task-tab.completed .task-title {
-  color:#888;
+  color: #888;
   font-weight: normal;
 }

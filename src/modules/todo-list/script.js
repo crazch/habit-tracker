@@ -11,8 +11,10 @@ const addTaskPriority = document.querySelector(".add-task-priority");
 // Tab Container
 const tabContainer = document.querySelector(".tab-container");
 const taskTab = document.querySelector(".task-tab");
+const taskListEl = document.querySelector(".task-list");
 const listTitle = document.querySelector(".list-title");
 const totalTask = document.querySelector(".total-task");
+const completedTaskListEl = document.querySelector(".completed-task-list");
 
 // Task Tab
 const taskTabCheckbox = document.getElementById("task-tab-checkbox");
@@ -48,6 +50,7 @@ const addTask = () => {
     date: ``,
     description: "",
     priority: "",
+    hasCompleted: true,
   };
 
   taskData.push(taskObj);
@@ -56,14 +59,18 @@ const addTask = () => {
 };
 
 const renderTaskList = () => {
-  tabContainer.innerHTML = "";
+  taskListEl.innerHTML = "";
+  completedTaskListEl.innerHTML = "";
 
-  taskData.forEach(({ id, title, date, description, priority }) => {
-    const taskDiv = document.createElement("div");
-    taskDiv.className = "task-tab";
-    taskDiv.id = id;
+  taskData.forEach(
+    ({ id, title, date, description, priority, hasCompleted }) => {
+      const taskDiv = document.createElement("div");
+      taskDiv.className = "task-tab";
+      taskDiv.id = id;
 
-    taskDiv.innerHTML = `
+      if (!hasCompleted) {
+        // Generate in taskDiv if task isn't completed
+        taskDiv.innerHTML = `
     <div class="task-content">
       <label>
         <input type="checkbox" />
@@ -72,27 +79,46 @@ const renderTaskList = () => {
       <span class="task-time">${date}</span>
     </div>
   `;
-
-    // Attach event listener here
-    taskDiv.addEventListener("click", () => {
-      activeTask = taskData.find((task) => task.id === id);
-      if (activeTask) {
-        taskEditorContainer.classList.add("open"); // SHOW hidden editor
-        editorTaskTitle.textContent = activeTask.title; // Title
-        textEditor.value = activeTask.description;
+        taskListEl.appendChild(taskDiv);
+      } else {
+        taskDiv.classList.add("completed");
+        taskDiv.innerHTML = `
+    <div class="task-content">
+      <label>
+        <input type="checkbox" checked />
+        <span class="task-title">${title}</span>
+      </label>
+      <span class="task-time">${date}</span>
+    </div>
+  `;
+        completedTaskListEl.appendChild(taskDiv);
       }
-    });
 
-    textEditor.addEventListener("input", () => {
-      if (activeTask) {
-        activeTask.description = textEditor.value;
-        localStorage.setItem("tasks", JSON.stringify(taskData));
-      }
-    });
+      // Attach event listener here
+      taskDiv.addEventListener("click", () => {
+        activeTask = taskData.find((task) => task.id === id);
+        if (activeTask) {
+          taskEditorContainer.classList.add("open"); // SHOW hidden editor
+          editorTaskTitle.textContent = activeTask.title; // Title
+          textEditor.value = activeTask.description;
+        }
+      });
 
-    tabContainer.appendChild(taskDiv);
-  });
+      textEditor.addEventListener("input", () => {
+        if (activeTask) {
+          activeTask.description = textEditor.value;
+          localStorage.setItem("tasks", JSON.stringify(taskData));
+        }
+      });
+    }
+  );
 };
+
+document
+  .querySelector(".close-editor")
+  .addEventListener("click", () =>
+    taskEditorContainer.classList.remove("open")
+  );
 
 addTaskInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
