@@ -50,7 +50,7 @@ const addTask = () => {
     date: ``,
     description: "",
     priority: "",
-    hasCompleted: true,
+    hasCompleted: false,
   };
 
   taskData.push(taskObj);
@@ -68,34 +68,48 @@ const renderTaskList = () => {
       taskDiv.className = "task-tab";
       taskDiv.id = id;
 
-      if (!hasCompleted) {
-        // Generate in taskDiv if task isn't completed
-        taskDiv.innerHTML = `
+      taskDiv.innerHTML = `
     <div class="task-content">
       <label>
-        <input type="checkbox" />
+        <input type="checkbox" ${hasCompleted ? "checked" : ""} />
         <span class="task-title">${title}</span>
       </label>
       <span class="task-time">${date}</span>
     </div>
   `;
-        taskListEl.appendChild(taskDiv);
-      } else {
-        taskDiv.classList.add("completed");
-        taskDiv.innerHTML = `
-    <div class="task-content">
-      <label>
-        <input type="checkbox" checked />
-        <span class="task-title">${title}</span>
-      </label>
-      <span class="task-time">${date}</span>
-    </div>
-  `;
-        completedTaskListEl.appendChild(taskDiv);
+
+      const labelEl = taskDiv.querySelector("label");
+      if (labelEl) {
+        labelEl.addEventListener("click", (e) => {
+          if (!(e.target instanceof HTMLInputElement)) {
+            e.preventDefault();
+          }
+        });
       }
 
+      if (hasCompleted) {
+        taskDiv.classList.add("completed");
+        completedTaskListEl.appendChild(taskDiv);
+      } else {
+        taskListEl.appendChild(taskDiv);
+      }
+
+      const checkbox = taskDiv.querySelector('input[type="checkbox"]');
+      checkbox.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+      checkbox.addEventListener("change", () => {
+        const task = taskData.find((t) => t.id === id);
+        if (task) {
+          task.hasCompleted = checkbox.checked;
+          localStorage.setItem("tasks", JSON.stringify(taskData));
+          renderTaskList();
+        }
+      });
+
       // Attach event listener here
-      taskDiv.addEventListener("click", () => {
+      taskDiv.addEventListener("click", (e) => {
+        if (e.target instanceof HTMLInputElement) return;
         activeTask = taskData.find((task) => task.id === id);
         if (activeTask) {
           taskEditorContainer.classList.add("open"); // SHOW hidden editor
@@ -103,23 +117,24 @@ const renderTaskList = () => {
           textEditor.value = activeTask.description;
         }
       });
-
-      textEditor.addEventListener("input", () => {
-        if (activeTask) {
-          activeTask.description = textEditor.value;
-          localStorage.setItem("tasks", JSON.stringify(taskData));
-        }
-      });
     }
   );
+  textEditor.addEventListener("input", () => {
+    if (activeTask) {
+      activeTask.description = textEditor.value;
+      localStorage.setItem("tasks", JSON.stringify(taskData));
+    }
+  });
 };
 
+// Animation open/close function
 document
   .querySelector(".close-editor")
   .addEventListener("click", () =>
     taskEditorContainer.classList.remove("open")
   );
 
+// Enter to add task
 addTaskInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     addTask();

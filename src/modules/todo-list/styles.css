@@ -121,7 +121,7 @@ body {
 /*
 - Contain every tasks
 */
-.task-tab {
+.task-content {
   border-left: 2px solid red;
   padding: 8px;
   margin: 0 8px;
@@ -139,8 +139,12 @@ body {
   align-items: center;
 }
 
-.task-tab label {
+.task-content label {
   cursor: pointer;
+}
+
+.task-content label span {
+  pointer-events: none;
 }
 
 .task-title {
@@ -152,7 +156,7 @@ body {
   color: #888;
 }
 
-.task-tab input[type="checkbox"] {
+.task-content input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   width: 18px;
@@ -166,12 +170,12 @@ body {
   transition: border-color 0.3s ease;
 }
 
-.task-tab input[type="checkbox"]:checked {
+.task-content input[type="checkbox"]:checked {
   background-color: #888;
   border-color: #888;
 }
 
-.task-tab input[type="checkbox"]:checked::after {
+.task-content input[type="checkbox"]:checked::after {
   content: "✔";
   position: absolute;
   left: 0.5px;
