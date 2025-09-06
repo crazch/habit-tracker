@@ -20,6 +20,10 @@ const completedTaskListEl = document.querySelector(".completed-task-list");
 const taskTabCheckbox = document.getElementById("task-tab-checkbox");
 const taskTabTitle = document.querySelector(".task-title");
 const taskTabTime = document.querySelector(".task-time");
+const addPriorityContainer = document.querySelector(".add-priority");
+const priorityOptions = document.querySelectorAll(
+  ".add-priority .priorities div"
+);
 
 // Task Editor Panel
 const taskEditorContainer = document.querySelector(".task-editor-container");
@@ -35,12 +39,16 @@ const taskLastEditDate = document.querySelector(".last-edited");
 const taskData = JSON.parse(localStorage.getItem("tasks")) || [];
 const currentTask = {};
 let activeTask = null;
+let selectedPriority = "";
 
 const removeSpecialChars = (val) => {
   return val.trim().replace(/[^A-Za-z0-9\-\s]/g, "");
 };
+3;
 
 const addTask = () => {
+  if (!addTaskInput.value) return;
+
   const taskObj = {
     id: `${removeSpecialChars(addTaskInput.value)
       .toLowerCase()
@@ -49,15 +57,28 @@ const addTask = () => {
     title: `${removeSpecialChars(addTaskInput.value)}`,
     date: ``,
     description: "",
-    priority: "",
+    priority: selectedPriority,
     hasCompleted: false,
   };
 
   taskData.push(taskObj);
   localStorage.setItem("tasks", JSON.stringify(taskData));
   renderTaskList();
+  addTaskInput.value = "";
+  selectedPriority = "";
+  addTaskPriority.textContent = "Logo";
 };
 
+priorityOptions.forEach((option, index) => {
+  option.addEventListener("click", () => {
+    selectedPriority = index;
+    addPriorityContainer.style.display = "none";
+    addTaskPriority.textContent = `!`.repeat(index + 1);
+  });
+});
+
+// Render Task
+// TODO: Organize Later
 const renderTaskList = () => {
   taskListEl.innerHTML = "";
   completedTaskListEl.innerHTML = "";
@@ -78,6 +99,41 @@ const renderTaskList = () => {
     </div>
   `;
 
+      const taskContentEl = taskDiv.querySelector(".task-content");
+      const checkboxEl = taskContentEl.querySelector('input[type="checkbox"]');
+      let priorityColor;
+
+      switch (priority) {
+        case 0:
+          taskContentEl.style.borderLeft = "4px solid gray";
+          priorityColor = "gray";
+          break;
+        case 1:
+          taskContentEl.style.borderLeft = "4px solid green";
+          priorityColor = "green";
+          break;
+        case 2:
+          taskContentEl.style.borderLeft = "4px solid orange";
+          priorityColor = "orange";
+          break;
+        case 3:
+          taskContentEl.style.borderLeft = "4px solid red";
+          priorityColor = "red";
+          break;
+        default:
+          taskContentEl.style.borderLeft = "2px solid #ddd";
+          priorityColor = "#ddd";
+      }
+
+      if (checkboxEl.checked) {
+        checkboxEl.style.backgroundColor = priorityColor;
+        checkboxEl.style.borderColor = priorityColor;
+      }
+
+      if (!checkboxEl.checked) {
+        checkboxEl.style.borderColor = priorityColor;
+      }
+      // Prevent label click
       const labelEl = taskDiv.querySelector("label");
       if (labelEl) {
         labelEl.addEventListener("click", (e) => {
@@ -87,6 +143,7 @@ const renderTaskList = () => {
         });
       }
 
+      // Sort Task by completion
       if (hasCompleted) {
         taskDiv.classList.add("completed");
         completedTaskListEl.appendChild(taskDiv);
@@ -94,6 +151,7 @@ const renderTaskList = () => {
         taskListEl.appendChild(taskDiv);
       }
 
+      // Add checkbox and matching task to finish/unfinish task
       const checkbox = taskDiv.querySelector('input[type="checkbox"]');
       checkbox.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -117,8 +175,11 @@ const renderTaskList = () => {
           textEditor.value = activeTask.description;
         }
       });
+
     }
   );
+
+  // auto save when editing
   textEditor.addEventListener("input", () => {
     if (activeTask) {
       activeTask.description = textEditor.value;
@@ -140,3 +201,10 @@ addTaskInput.addEventListener("keydown", (e) => {
     addTask();
   }
 });
+
+addTaskPriority.addEventListener("click", () => {
+  addPriorityContainer.style.display =
+    addPriorityContainer.style.display === "block" ? "none" : "block";
+});
+
+renderTaskList();
