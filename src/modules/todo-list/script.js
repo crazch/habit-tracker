@@ -1,210 +1,220 @@
-// Header
-const menuBtn = document.querySelector(".menu-btn");
-const pageTitle = document.querySelector(".page-title");
-const moreBtn = document.querySelector(".more-btn");
+const getElements = () => {
+  return {
+    menuBtn: document.querySelector(".menu-btn"),
+    pageTitle: document.querySelector(".page-title"),
+    moreBtn: document.querySelector(".more-btn"),
 
-// Add Task Input
-const addTaskInput = document.getElementById("add-task");
-const addTaskDateBtn = document.querySelector(".add-task-date");
-const addTaskPriority = document.querySelector(".add-task-priority");
+    addTaskInput: document.getElementById("add-task"),
+    addTaskDateBtn: document.querySelector(".add-task-date"),
+    addTaskPriority: document.querySelector(".add-task-priority"),
 
-// Tab Container
-const tabContainer = document.querySelector(".tab-container");
-const taskTab = document.querySelector(".task-tab");
-const taskListEl = document.querySelector(".task-list");
-const listTitle = document.querySelector(".list-title");
-const totalTask = document.querySelector(".total-task");
-const completedTaskListEl = document.querySelector(".completed-task-list");
+    tabContainer: document.querySelector(".tab-container"),
+    taskListEl: document.querySelector(".task-list"),
+    listTitle: document.querySelector(".list-title"),
+    totalTask: document.querySelector(".total-task"),
+    completedTaskListEl: document.querySelector(".completed-task-list"),
 
-// Task Tab
-const taskTabCheckbox = document.getElementById("task-tab-checkbox");
-const taskTabTitle = document.querySelector(".task-title");
-const taskTabTime = document.querySelector(".task-time");
-const addPriorityContainer = document.querySelector(".add-priority");
-const priorityOptions = document.querySelectorAll(
-  ".add-priority .priorities div"
-);
+    taskEditorContainer: document.querySelector(".task-editor-container"),
+    editorCheckbox: document.getElementById("task-complete"),
+    editorDateBtn: document.querySelector(".date-btn"),
+    priorityEditorBtn: document.querySelector(".priority-btn"),
+    editorTaskTitle: document.getElementById("editor-task-title"),
+    textEditor: document.querySelector(".text-editor-area"),
+    taskCreationDate: document.querySelector(".created-by"),
+    taskLastEditDate: document.querySelector(".last-edited"),
 
-// Task Editor Panel
-const taskEditorContainer = document.querySelector(".task-editor-container");
-const editorCheckbox = document.getElementById("task-complete");
-const editorDateBtn = document.querySelector(".date-btn");
-const priorityEditorBtn = document.querySelector("priority-btn");
-const editorTaskTitle = document.getElementById("editor-task-title");
-const textEditor = document.querySelector(".text-editor-area");
+    addPriorityContainer: document.querySelector(".add-priority"),
+    priorityOptions: document.querySelectorAll(".add-priority .priorities div"),
+  };
+};
 
-const taskCreationDate = document.querySelector(".created-by");
-const taskLastEditDate = document.querySelector(".last-edited");
+const state = {
+  tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+  activeTask: null,
+  selectedPriority: "",
+};
 
-const taskData = JSON.parse(localStorage.getItem("tasks")) || [];
-const currentTask = {};
-let activeTask = null;
-let selectedPriority = "";
+const loadTasks = () => JSON.parse(localStorage.getItem("tasks")) || [];
+const saveTasks = (tasks) => {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+let elements;
+const init = () => {
+  elements = getElements();
+  state.tasks = loadTasks();
+  attachEvents(elements);
+  renderTaskList();
+};
 
 const removeSpecialChars = (val) => {
   return val.trim().replace(/[^A-Za-z0-9\-\s]/g, "");
 };
-3;
 
-const addTask = () => {
-  if (!addTaskInput.value) return;
-
-  const taskObj = {
-    id: `${removeSpecialChars(addTaskInput.value)
+const createTask = (title, priority = "") => {
+  return {
+    id: `${removeSpecialChars(title)
       .toLowerCase()
       .split(" ")
       .join("-")}-${Date.now()}`,
-    title: `${removeSpecialChars(addTaskInput.value)}`,
-    date: ``,
+    title: removeSpecialChars(title),
+    date: "",
     description: "",
-    priority: selectedPriority,
+    priority,
     hasCompleted: false,
   };
-
-  taskData.push(taskObj);
-  localStorage.setItem("tasks", JSON.stringify(taskData));
-  renderTaskList();
-  addTaskInput.value = "";
-  selectedPriority = "";
-  addTaskPriority.textContent = "Logo";
 };
 
-priorityOptions.forEach((option, index) => {
-  option.addEventListener("click", () => {
-    selectedPriority = index;
-    addPriorityContainer.style.display = "none";
-    addTaskPriority.textContent = `!`.repeat(index + 1);
-  });
-});
+const addTask = () => {
+  if (!elements.addTaskInput.value) return;
 
-// Render Task
-// TODO: Organize Later
-const renderTaskList = () => {
-  taskListEl.innerHTML = "";
-  completedTaskListEl.innerHTML = "";
+  const taskObj = createTask(
+    elements.addTaskInput.value,
+    state.selectedPriority
+  );
 
-  taskData.forEach(
-    ({ id, title, date, description, priority, hasCompleted }) => {
-      const taskDiv = document.createElement("div");
-      taskDiv.className = "task-tab";
-      taskDiv.id = id;
+  state.tasks.push(taskObj);
+  saveTasks(state.tasks);
+  renderTaskList();
 
-      taskDiv.innerHTML = `
-    <div class="task-content">
-      <label>
-        <input type="checkbox" ${hasCompleted ? "checked" : ""} />
-        <span class="task-title">${title}</span>
-      </label>
-      <span class="task-time">${date}</span>
-    </div>
+  elements.addTaskInput.value = "";
+  state.selectedPriority = "";
+  elements.addTaskPriority.textContent = "Logo";
+};
+
+// Extract one-task renderer
+const renderTaskItem = (task, elements) => {
+  const { id, title, date, priority, hasCompleted } = task;
+
+  const taskDiv = document.createElement("div");
+  taskDiv.className = "task-tab";
+  taskDiv.id = id;
+
+  taskDiv.innerHTML = `
+  <div class="task-content">
+    <label>
+      <input type="checkbox" ${hasCompleted ? "checked" : ""} />
+      <span class="task-title">${title}</span>
+    </label>
+    <span class="task-time">${date}</span>
+  </div>
   `;
 
-      const taskContentEl = taskDiv.querySelector(".task-content");
-      const checkboxEl = taskContentEl.querySelector('input[type="checkbox"]');
-      let priorityColor;
+  const taskContentEl = taskDiv.querySelector(".task-content");
+  const checkboxEl = taskContentEl.querySelector('input[type="checkbox"]');
 
-      switch (priority) {
-        case 0:
-          taskContentEl.style.borderLeft = "4px solid gray";
-          priorityColor = "gray";
-          break;
-        case 1:
-          taskContentEl.style.borderLeft = "4px solid green";
-          priorityColor = "green";
-          break;
-        case 2:
-          taskContentEl.style.borderLeft = "4px solid orange";
-          priorityColor = "orange";
-          break;
-        case 3:
-          taskContentEl.style.borderLeft = "4px solid red";
-          priorityColor = "red";
-          break;
-        default:
-          taskContentEl.style.borderLeft = "2px solid #ddd";
-          priorityColor = "#ddd";
-      }
+  // Apply priority color
+  let priorityColor;
+  switch (priority) {
+    case 0:
+      priorityColor = "gray";
+      break;
+    case 1:
+      priorityColor = "green";
+      break;
+    case 2:
+      priorityColor = "orange";
+      break;
+    case 3:
+      priorityColor = "red";
+      break;
+    default:
+      priorityColor = "#ddd";
+  }
+  taskContentEl.style.borderLeft = `4px solid ${priorityColor}`;
+  checkboxEl.style.borderColor = priorityColor;
+  if (checkboxEl.checked) {
+    checkboxEl.style.backgroundColor = priorityColor;
+  }
 
-      if (checkboxEl.checked) {
-        checkboxEl.style.backgroundColor = priorityColor;
-        checkboxEl.style.borderColor = priorityColor;
-      }
+  // Prevent label mis-click
+  const labelEl = taskDiv.querySelector("label");
+  if (labelEl) {
+    labelEl.addEventListener("click", (e) => {
+      if (!(e.target instanceof HTMLInputElement)) e.preventDefault();
+    });
+  }
 
-      if (!checkboxEl.checked) {
-        checkboxEl.style.borderColor = priorityColor;
-      }
-      // Prevent label click
-      const labelEl = taskDiv.querySelector("label");
-      if (labelEl) {
-        labelEl.addEventListener("click", (e) => {
-          if (!(e.target instanceof HTMLInputElement)) {
-            e.preventDefault();
-          }
-        });
-      }
+  // Checkbox behaviour
 
-      // Sort Task by completion
-      if (hasCompleted) {
-        taskDiv.classList.add("completed");
-        completedTaskListEl.appendChild(taskDiv);
-      } else {
-        taskListEl.appendChild(taskDiv);
-      }
-
-      // Add checkbox and matching task to finish/unfinish task
-      const checkbox = taskDiv.querySelector('input[type="checkbox"]');
-      checkbox.addEventListener("click", (e) => {
-        e.stopPropagation();
-      });
-      checkbox.addEventListener("change", () => {
-        const task = taskData.find((t) => t.id === id);
-        if (task) {
-          task.hasCompleted = checkbox.checked;
-          localStorage.setItem("tasks", JSON.stringify(taskData));
-          renderTaskList();
-        }
-      });
-
-      // Attach event listener here
-      taskDiv.addEventListener("click", (e) => {
-        if (e.target instanceof HTMLInputElement) return;
-        activeTask = taskData.find((task) => task.id === id);
-        if (activeTask) {
-          taskEditorContainer.classList.add("open"); // SHOW hidden editor
-          editorTaskTitle.textContent = activeTask.title; // Title
-          textEditor.value = activeTask.description;
-        }
-      });
-
+  checkboxEl.addEventListener("click", (e) => e.stopPropagation());
+  checkboxEl.addEventListener("change", () => {
+    const found = state.tasks.find((t) => t.id === id);
+    if (found) {
+      found.hasCompleted = checkboxEl.checked;
+      saveTasks(state.tasks);
+      renderTaskList();
     }
-  );
+  });
 
-  // auto save when editing
-  textEditor.addEventListener("input", () => {
-    if (activeTask) {
-      activeTask.description = textEditor.value;
-      localStorage.setItem("tasks", JSON.stringify(taskData));
+  // Open Editor
+  taskDiv.addEventListener("click", (e) => {
+    if (e.target instanceof HTMLInputElement) return;
+    state.activeTask = state.tasks.find((t) => t.id === id);
+    if (state.activeTask) {
+      elements.taskEditorContainer.classList.add("open");
+      elements.editorTaskTitle.textContent = state.activeTask.title;
+      elements.textEditor.value = state.activeTask.description;
+    }
+  });
+
+  return taskDiv;
+};
+
+const renderTaskList = () => {
+  elements.taskListEl.innerHTML = "";
+  elements.completedTaskListEl.innerHTML = "";
+
+  state.tasks.forEach((task) => {
+    const taskEl = renderTaskItem(task, elements);
+    if (task.hasCompleted) {
+      taskEl.classList.add("completed");
+      elements.completedTaskListEl.appendChild(taskEl);
+    } else {
+      elements.taskListEl.appendChild(taskEl);
     }
   });
 };
 
-// Animation open/close function
-document
-  .querySelector(".close-editor")
-  .addEventListener("click", () =>
-    taskEditorContainer.classList.remove("open")
-  );
+const attachEvents = (elements) => {
+  // Priority section
+  elements.priorityOptions.forEach((option, index) => {
+    option.addEventListener("click", () => {
+      state.selectedPriority = index;
+      elements.addPriorityContainer.style.display = "none";
+      elements.addTaskPriority.textContent = "!".repeat(index + 1);
+    });
+  });
 
-// Enter to add task
-addTaskInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") {
-    addTask();
-  }
-});
+  // Auto-save editor description
+  elements.textEditor.addEventListener("input", () => {
+    if (state.activeTask) {
+      state.activeTask.description = elements.textEditor.value;
+      saveTasks(state.tasks);
+    }
+  });
 
-addTaskPriority.addEventListener("click", () => {
-  addPriorityContainer.style.display =
-    addPriorityContainer.style.display === "block" ? "none" : "block";
-});
+  // Animation open/close function
+  elements.taskEditorContainer
+    .querySelector(".close-editor")
+    .addEventListener("click", () =>
+      elements.taskEditorContainer.classList.remove("open")
+    );
 
-renderTaskList();
+  // Enter to add task
+  elements.addTaskInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      addTask();
+    }
+  });
+
+  // Toggle priority panel
+  elements.addTaskPriority.addEventListener("click", () => {
+    elements.addPriorityContainer.style.display =
+      elements.addPriorityContainer.style.display === "block"
+        ? "none"
+        : "block";
+  });
+};
+
+document.addEventListener("DOMContentLoaded", init);
