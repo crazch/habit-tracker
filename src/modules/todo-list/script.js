@@ -18,7 +18,7 @@ const getElements = () => {
     editorCheckbox: document.getElementById("task-complete"),
     editorDateBtn: document.querySelector(".date-btn"),
     priorityEditorBtn: document.querySelector(".priority-btn"),
-    editorTaskTitle: document.getElementById("editor-task-title"),
+    editorTaskTitle: document.querySelector(".editor-task-title"),
     textEditor: document.querySelector(".text-editor-area"),
     taskCreationDate: document.querySelector(".created-by"),
     taskLastEditDate: document.querySelector(".last-edited"),
@@ -40,12 +40,6 @@ const saveTasks = (tasks) => {
 };
 
 let elements;
-const init = () => {
-  elements = getElements();
-  state.tasks = loadTasks();
-  attachEvents(elements);
-  renderTaskList();
-};
 
 const removeSpecialChars = (val) => {
   return val.trim().replace(/[^A-Za-z0-9\-\s]/g, "");
@@ -153,7 +147,7 @@ const renderTaskItem = (task, elements) => {
     state.activeTask = state.tasks.find((t) => t.id === id);
     if (state.activeTask) {
       elements.taskEditorContainer.classList.add("open");
-      elements.editorTaskTitle.textContent = state.activeTask.title;
+      elements.editorTaskTitle.value = state.activeTask.title;
       elements.textEditor.value = state.activeTask.description;
     }
   });
@@ -194,6 +188,19 @@ const attachEvents = (elements) => {
     }
   });
 
+  elements.editorTaskTitle.addEventListener("input", () => {
+    if (state.activeTask) {
+      state.activeTask.title = elements.editorTaskTitle.value;
+      saveTasks(state.tasks);
+
+      const taskElTitle = document.getElementById(state.activeTask.id);
+      if (taskElTitle) {
+        const titleSpan = taskElTitle.querySelector(".task-title");
+        if (titleSpan) titleSpan.textContent = state.activeTask.title;
+      }
+    }
+  });
+
   // Animation open/close function
   elements.taskEditorContainer
     .querySelector(".close-editor")
@@ -217,4 +224,9 @@ const attachEvents = (elements) => {
   });
 };
 
-document.addEventListener("DOMContentLoaded", init);
+document.addEventListener("DOMContentLoaded", () => {
+  elements = getElements();
+  state.tasks = loadTasks();
+  attachEvents(elements);
+  renderTaskList();
+});
